@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Building Your College Manager System</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #2c3e50;
+        margin-top: 2rem;
+      }
+      pre {
+        background: #f8f9fa;
+        border-radius: 4px;
+        padding: 1rem;
+        overflow-x: auto;
+        border: 1px solid #e9ecef;
+        width: calc(100% - 2rem);
+      }
+      .keyword {
+        color: #0033b3;
+      }
+      .string {
+        color: #067d17;
+      }
+      .comment {
+        color: #8c8c8c;
+      }
+      .number {
+        color: #1750eb;
+      }
+      .type {
+        color: #000080;
+      }
+      .tip {
+        background: #e3f2fd;
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+      .warning {
+        background: #fff3e0;
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Building Your College Manager System! 🎓</h1>
+
+    <p>Today we're going to build a College Manager system using Java and Jakarta EE. This will help us manage students, courses, and course registrations, all with a web interface!</p>
+
+    <div class="tip">
+      <strong>What We'll Build:</strong> A complete web application that manages students and courses at a college, allowing us to register students for specific courses.
+    </div>
+
+    <h2>Getting Started: Our Data Models 📊</h2>
+
+    <p>First, we need to create our core classes that will hold all our data. These form the "Model" part of our MVC (Model-View-Controller) pattern.</p>
+
+    <h3>1. The Student Class</h3>
+
+    <p>Let's start with our Student class. What information should we store about each student?</p>
+
+    <pre><span class="keyword">package</span> com.example.collegemanager.model;
+
+<span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.List;
+
+<span class="keyword">public class</span> Student {
+    <span class="keyword">private int</span> id;
+    <span class="keyword">private</span> String name;
+    <span class="keyword">private</span> String email;
+    <span class="keyword">private</span> List&lt;Course&gt; registeredCourses;
+    
+    <span class="keyword">public</span> Student(<span class="keyword">int</span> id, String name, String email) {
+        <span class="keyword">this</span>.id = id;
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.email = email;
+        <span class="keyword">this</span>.registeredCourses = <span class="keyword">new</span> ArrayList&lt;&gt;();
+    }
+    
+    <span class="comment">// Getters for our properties</span>
+    <span class="keyword">public int</span> getId() {
+        <span class="keyword">return</span> id;
+    }
+    
+    <span class="keyword">public</span> String getName() {
+        <span class="keyword">return</span> name;
+    }
+    
+    <span class="keyword">public</span> String getEmail() {
+        <span class="keyword">return</span> email;
+    }
+    
+    <span class="keyword">public</span> List&lt;Course&gt; getRegisteredCourses() {
+        <span class="keyword">return</span> registeredCourses;
+    }
+}</pre>
+
+    <div class="warning">
+      <strong>Wait!</strong> Our Student class needs methods to register for courses! 🤔
+    </div>
+
+    <p>Let's add methods to handle course registration:</p>
+
+    <pre><span class="keyword">public void</span> registerForCourse(Course course) {
+    <span class="keyword">if</span> (!registeredCourses.contains(course)) {
+        registeredCourses.add(course);
+    }
+}
+
+<span class="keyword">public void</span> dropCourse(Course course) {
+    registeredCourses.remove(course);
+}
+
+<span class="keyword">public boolean</span> isRegisteredFor(Course course) {
+    <span class="keyword">return</span> registeredCourses.contains(course);
+}
+
+<span class="annotation">@Override</span>
+<span class="keyword">public</span> String toString() {
+    <span class="keyword">return</span> <span class="string">"Student #"</span> + id + <span class="string">": "</span> + name + <span class="string">" ("</span> + email + <span class="string">")"</span>;
+}</pre>
+
+    <div class="tip">
+      <strong>Notice:</strong> We're storing the courses a student is registered for directly in the Student class. This makes it easy to get a student's schedule!
+    </div>
+
+    <h3>2. The Course Class</h3>
+
+    <p>Now let's create our Course class:</p>
+
+    <pre><span class="keyword">package</span> com.example.collegemanager.model;
+
+<span class="keyword">public class</span> Course {
+    <span class="keyword">private</span> String code;
+    <span class="keyword">private</span> String title;
+    <span class="keyword">private int</span> credits;
+    <span class="keyword">private</span> String instructor;
+    
+    <span class="keyword">public</span> Course(String code, String title, <span class="keyword">int</span> credits, String instructor) {
+        <span class="keyword">this</span>.code = code;
+        <span class="keyword">this</span>.title = title;
+        <span class="keyword">this</span>.credits = credits;
+        <span class="keyword">this</span>.instructor = instructor;
+    }
+    
+    <span class="comment">// Getters for our properties</span>
+    <span class="keyword">public</span> String getCode() {
+        <span class="keyword">return</span> code;
+    }
+    
+    <span class="keyword">public</span> String getTitle() {
+        <span class="keyword">return</span> title;
+    }
+    
+    <span class="keyword">public int</span> getCredits() {
+        <span class="keyword">return</span> credits;
+    }
+    
+    <span class="keyword">public</span> String getInstructor() {
+        <span class="keyword">return</span> instructor;
+    }
+    
+    <span class="annotation">@Override</span>
+    <span class="keyword">public</span> String toString() {
+        <span class="keyword">return</span> code + <span class="string">": "</span> + title + <span class="string">" ("</span> + credits + <span class="string">" credits, taught by "</span> + instructor + <span class="string">")"</span>;
+    }
+}</pre>
+
+<div class="warning">
+  <strong>Hold on!</strong> What if two courses have the same code? We need to make sure our Course class can be properly compared! 🧐
+</div>
+
+<p>Let's add equals() and hashCode() methods to our Course class:</p>
+
+<pre><span class="annotation">@Override</span>
+<span class="keyword">public boolean</span> equals(Object obj) {
+    <span class="keyword">if</span> (<span class="keyword">this</span> == obj) <span class="keyword">return true</span>;
+    <span class="keyword">if</span> (obj == <span class="keyword">null</span> || getClass() != obj.getClass()) <span class="keyword">return false</span>;
+    Course course = (Course) obj;
+    <span class="keyword">return</span> code.equals(course.code);
+}
+
+<span class="annotation">@Override</span>
+<span class="keyword">public int</span> hashCode() {
+    <span class="keyword">return</span> code.hashCode();
+}</pre>
+
+<div class="tip">
+  <strong>Pro Tip:</strong> We're using the course code as our unique identifier. This helps when checking if a student is already registered for a course!
+</div>
+
+<h3>3. The CollegeManager Class</h3>
+
+<p>Now we need a class to manage everything! The CollegeManager will keep track of all students and courses:</p>
+
+<pre><span class="keyword">package</span> com.example.collegemanager.model;
+
+<span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.List;
+
+<span class="keyword">public class</span> CollegeManager {
+    <span class="keyword">private</span> List&lt;Student&gt; students;
+    <span class="keyword">private</span> List&lt;Course&gt; courses;
+    <span class="keyword">private int</span> nextStudentId;
+
+    <span class="keyword">public</span> CollegeManager() {
+        students = <span class="keyword">new</span> ArrayList&lt;&gt;();
+        courses = <span class="keyword">new</span> ArrayList&lt;&gt;();
+        nextStudentId = 1000; <span class="comment">// Start student IDs at 1000</span>
+    }
+
+    <span class="comment">// Method to add a new student</span>
+    <span class="keyword">public</span> Student addStudent(String name, String email) {
+        Student student = <span class="keyword">new</span> Student(nextStudentId++, name, email);
+        students.add(student);
+        <span class="keyword">return</span> student;
+    }
+
+    <span class="comment">// Method to add a new course</span>
+    <span class="keyword">public</span> Course addCourse(String code, String title, <span class="keyword">int</span> credits, String instructor) {
+        Course course = <span class="keyword">new</span> Course(code, title, credits, instructor);
+        courses.add(course);
+        <span class="keyword">return</span> course;
+    }
+
+    <span class="comment">// Method to register a student for a course</span>
+    <span class="keyword">public boolean</span> registerStudentForCourse(<span class="keyword">int</span> studentId, String courseCode) {
+        Student student = findStudentById(studentId);
+        Course course = findCourseByCode(courseCode);
+        
+        <span class="keyword">if</span> (student != <span class="keyword">null</span> && course != <span class="keyword">null</span>) {
+            student.registerForCourse(course);
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">return false</span>;
+    }
+
+    <span class="comment">// Helper method to find a student by ID</span>
+    <span class="keyword">public</span> Student findStudentById(<span class="keyword">int</span> id) {
+        <span class="keyword">for</span> (Student student : students) {
+            <span class="keyword">if</span> (student.getId() == id) {
+                <span class="keyword">return</span> student;
+            }
+        }
+        <span class="keyword">return null</span>;
+    }
+
+    <span class="comment">// Helper method to find a course by code</span>
+    <span class="keyword">public</span> Course findCourseByCode(String code) {
+        <span class="keyword">for</span> (Course course : courses) {
+            <span class="keyword">if</span> (course.getCode().equals(code)) {
+                <span class="keyword">return</span> course;
+            }
+        }
+        <span class="keyword">return null</span>;
+    }
+
+    <span class="comment">// Methods to get all students and courses</span>
+    <span class="keyword">public</span> List&lt;Student&gt; getAllStudents() {
+        <span class="keyword">return new</span> ArrayList&lt;&gt;(students);
+    }
+
+    <span class="keyword">public</span> List&lt;Course&gt; getAllCourses() {
+        <span class="keyword">return new</span> ArrayList&lt;&gt;(courses);
+    }
+}</pre>
+
+<div class="tip">
+  <strong>Notice:</strong> Our manager class handles creating unique student IDs automatically! We're also returning new lists from our getters to prevent outside code from modifying our internal data. 🔒
+</div>
+
+<h2>Testing Our Model Classes 🧪</h2>
+
+<p>Let's create a simple test to make sure our classes work together properly:</p>
+
+<pre><span class="keyword">public static void</span> main(String[] args) {
+    <span class="comment">// Create our college manager</span>
+    CollegeManager manager = <span class="keyword">new</span> CollegeManager();
+
+    <span class="comment">// Add some students</span>
+    Student alice = manager.addStudent(<span class="string">"Alice Smith"</span>, <span class="string">"alice@example.com"</span>);
+    Student bob = manager.addStudent(<span class="string">"Bob Johnson"</span>, <span class="string">"bob@example.com"</span>);
+
+    <span class="comment">// Add some courses</span>
+    Course javaCourse = manager.addCourse(<span class="string">"CS101"</span>, <span class="string">"Introduction to Java"</span>, 3, <span class="string">"Dr. Java"</span>);
+    Course webDev = manager.addCourse(<span class="string">"CS201"</span>, <span class="string">"Web Development"</span>, 4, <span class="string">"Prof. Web"</span>);
+
+    <span class="comment">// Register students for courses</span>
+    manager.registerStudentForCourse(alice.getId(), javaCourse.getCode());
+    manager.registerStudentForCourse(alice.getId(), webDev.getCode());
+    manager.registerStudentForCourse(bob.getId(), javaCourse.getCode());
+
+    <span class="comment">// Print out student registrations</span>
+    System.out.println(<span class="string">"Alice's courses:"</span>);
+    <span class="keyword">for</span> (Course course : alice.getRegisteredCourses()) {
+        System.out.println(<span class="string">"- "</span> + course);
+    }
+
+    System.out.println(<span class="string">"\nBob's courses:"</span>);
+    <span class="keyword">for</span> (Course course : bob.getRegisteredCourses()) {
+        System.out.println(<span class="string">"- "</span> + course);
+    }
+}</pre>
+
+<p>This code should output something like:</p>
+
+<pre>Alice's courses:
+- CS101: Introduction to Java (3 credits, taught by Dr. Java)
+- CS201: Web Development (4 credits, taught by Prof. Web)
+
+Bob's courses:
+- CS101: Introduction to Java (3 credits, taught by Dr. Java)</pre>
+
+<div class="warning">
+  <strong>Great! But...</strong> We want a web application, not just a console program! Let's start building our web interface. 🌐
+</div>
+
+<h2>Introducing the MVC Pattern 🏗️</h2>
+
+<p>Our web application will follow the Model-View-Controller (MVC) pattern:</p>
+
+<ul>
+  <li><strong>Model:</strong> The classes we just created (Student, Course, CollegeManager)</li>
+  <li><strong>View:</strong> JSP pages that display our data and forms</li>
+  <li><strong>Controller:</strong> Servlets that handle requests and update our model</li>
+</ul>
+
+<h3>Creating Our First Servlet</h3>
+
+<p>Let's create a simple ManagerServlet that will display our college data:</p>
+
+<pre><span class="keyword">package</span> com.example.collegemanager.controller;
+
+<span class="keyword">import</span> com.example.collegemanager.model.CollegeManager;
+<span class="keyword">import</span> com.example.collegemanager.model.Course;
+<span class="keyword">import</span> com.example.collegemanager.model.Student;
+
+<span class="keyword">import</span> jakarta.servlet.ServletException;
+<span class="keyword">import</span> jakarta.servlet.annotation.WebServlet;
+<span class="keyword">import</span> jakarta.servlet.http.HttpServlet;
+<span class="keyword">import</span> jakarta.servlet.http.HttpServletRequest;
+<span class="keyword">import</span> jakarta.servlet.http.HttpServletResponse;
+<span class="keyword">import</span> jakarta.servlet.http.HttpSession;
+
+<span class="keyword">import</span> java.io.IOException;
+
+<span class="annotation">@WebServlet("/manager")</span>
+<span class="keyword">public class</span> ManagerServlet <span class="keyword">extends</span> HttpServlet {
+
+    <span class="annotation">@Override</span>
+    <span class="keyword">protected void</span> doGet(HttpServletRequest request, HttpServletResponse response) 
+            <span class="keyword">throws</span> ServletException, IOException {
+        
+        <span class="comment">// Get or create a session for this user</span>
+        HttpSession session = request.getSession();
+        
+        <span class="comment">// Get our CollegeManager from the session (or create a new one)</span>
+        CollegeManager manager = (CollegeManager) session.getAttribute(<span class="string">"collegeManager"</span>);
+        
+        <span class="keyword">if</span> (manager == <span class="keyword">null</span>) {
+            <span class="comment">// First time visiting - create a new manager with sample data</span>
+            manager = <span class="keyword">new</span> CollegeManager();
+            
+            <span class="comment">// Add some sample students</span>
+            Student alice = manager.addStudent(<span class="string">"Alice Smith"</span>, <span class="string">"alice@example.com"</span>);
+            Student bob = manager.addStudent(<span class="string">"Bob Johnson"</span>, <span class="string">"bob@example.com"</span>);
+            
+            <span class="comment">// Add some sample courses</span>
+            Course javaCourse = manager.addCourse(<span class="string">"CS101"</span>, <span class="string">"Introduction to Java"</span>, 3, <span class="string">"Dr. Java"</span>);
+            Course webDev = manager.addCourse(<span class="string">"CS201"</span>, <span class="string">"Web Development"</span>, 4, <span class="string">"Prof. Web"</span>);
+            Course math = manager.addCourse(<span class="string">"MATH101"</span>, <span class="string">"Calculus I"</span>, 4, <span class="string">"Dr. Calculus"</span>);
+            
+            <span class="comment">// Register some students for courses</span>
+            manager.registerStudentForCourse(alice.getId(), javaCourse.getCode());
+            manager.registerStudentForCourse(alice.getId(), webDev.getCode());
+            manager.registerStudentForCourse(bob.getId(), javaCourse.getCode());
+            manager.registerStudentForCourse(bob.getId(), math.getCode());
+            
+            <span class="comment">// Save the manager in the session</span>
+            session.setAttribute(<span class="string">"collegeManager"</span>, manager);
+        }
+        
+        <span class="comment">// Add the manager to the request for the JSP to access</span>
+        request.setAttribute(<span class="string">"collegeManager"</span>, manager);
+        
+        <span class="comment">// Forward to the JSP page</span>
+        request.getRequestDispatcher(<span class="string">"/WEB-INF/views/manager.jsp"</span>).forward(request, response);
+    }
+}</pre>
+
+<div class="tip">
+  <strong>What's happening here?</strong>
+  <ul>
+    <li>The <code>@WebServlet("/manager")</code> annotation maps this servlet to the URL <code>/manager</code></li>
+    <li>We store our CollegeManager in the session so it persists between requests</li>
+    <li>We're creating sample data the first time someone visits</li>
+    <li>The servlet forwards to a JSP page that will display the data</li>
+  </ul>
+</div>
+
+<h3>Creating Our JSP View</h3>
+
+<p>Now let's create a simple JSP page to display our college data. Create a file called <code>manager.jsp</code> in <code>/WEB-INF/views/</code>:</p>
+
+<pre>&lt;%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%&gt;
+&lt;%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+&lt;title&gt;College Manager&lt;/title&gt;
+&lt;style&gt;
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+    h1, h2, h3 {
+        color: #2c3e50;
+        margin-top: 2rem;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+    th {
+        background-color: #f8f9fa;
+    }
+    .card {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        margin-bottom: 1rem;
+    }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;🎓 College Manager System&lt;/h1&gt;
+
+&lt;div class="card"&gt;
+    &lt;h2&gt;System Information&lt;/h2&gt;
+    &lt;p&gt;Total Students: ${collegeManager.allStudents.size()}&lt;/p&gt;
+    &lt;p&gt;Total Courses: ${collegeManager.allCourses.size()}&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Display Students --&gt;
+&lt;h2&gt;Enrolled Students 👨‍🎓👩‍🎓&lt;/h2&gt;
+&lt;c:choose&gt;
+    &lt;c:when test="${empty collegeManager.allStudents}"&gt;
+        &lt;p&gt;No students enrolled yet.&lt;/p&gt;
+    &lt;/c:when&gt;
+    &lt;c:otherwise&gt;
+        &lt;table&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;ID&lt;/th&gt;
+                    &lt;th&gt;Name&lt;/th&gt;
+                    &lt;th&gt;Email&lt;/th&gt;
+                    &lt;th&gt;Registered Courses&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                &lt;c:forEach var="student" items="${collegeManager.allStudents}"&gt;
+                    &lt;tr&gt;
+                        &lt;td&gt;${student.id}&lt;/td&gt;
+                        &lt;td&gt;${student.name}&lt;/td&gt;
+                        &lt;td&gt;${student.email}&lt;/td&gt;
+                        &lt;td&gt;
+                            &lt;c:forEach var="course" items="${student.registeredCourses}" varStatus="status"&gt;
+                                ${course.code}${!status.last ? ', ' : ''}
+                            &lt;/c:forEach&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/c:forEach&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/c:otherwise&gt;
+&lt;/c:choose&gt;
+
+&lt;!-- Display Courses --&gt;
+&lt;h2&gt;Available Courses 📚&lt;/h2&gt;
+&lt;c:choose&gt;
+    &lt;c:when test="${empty collegeManager.allCourses}"&gt;
+        &lt;p&gt;No courses available yet.&lt;/p&gt;
+    &lt;/c:when&gt;
+    &lt;c:otherwise&gt;
+        &lt;table&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;Code&lt;/th&gt;
+                    &lt;th&gt;Title&lt;/th&gt;
+                    &lt;th&gt;Credits&lt;/th&gt;
+                    &lt;th&gt;Instructor&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                &lt;c:forEach var="course" items="${collegeManager.allCourses}"&gt;
+                    &lt;tr&gt;
+                        &lt;td&gt;${course.code}&lt;/td&gt;
+                        &lt;td&gt;${course.title}&lt;/td&gt;
+                        &lt;td&gt;${course.credits}&lt;/td&gt;
+                        &lt;td&gt;${course.instructor}&lt;/td&gt;
+                    &lt;/tr&gt;
+                &lt;/c:forEach&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/c:otherwise&gt;
+&lt;/c:choose&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+
+<div class="tip">
+  <strong>JSP Features:</strong>
+  <ul>
+    <li>We use JSTL tags (<code>c:choose</code>, <code>c:forEach</code>, etc.) to handle dynamic content</li>
+    <li>The <code>${collegeManager}</code> expression accesses the attribute we set in the servlet</li>
+    <li>We're displaying both students and their registered courses</li>
+  </ul>
+</div>
+
+<h2>Running Our College Manager Web App 🚀</h2>
+
+<p>Now we have a basic College Manager web application! Here's what happens when you run it:</p>
+
+<ol>
+  <li>When someone visits <code>/manager</code>, our servlet gets called</li>
+  <li>The servlet creates a CollegeManager with sample data (or retrieves an existing one)</li>
+  <li>The JSP displays the students and courses in a nice format</li>
+</ol>
+
+<div class="warning">
+  <strong>What's missing?</strong> We can't add new students or courses, or register students for courses yet! We'll add those features in the next part of this guide. 🛠️
+</div>
+
+<h2>Directory Structure 📁</h2>
+
+<p>Here's how your project structure should look:</p>
+
+<pre>college-manager/
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── example/
+│       │           └── collegemanager/
+│       │               ├── model/
+│       │               │   ├── Course.java
+│       │               │   ├── Student.java
+│       │               │   └── CollegeManager.java
+│       │               └── controller/
+│       │                   └── ManagerServlet.java
+│       └── webapp/
+│           └── WEB-INF/
+│               └── views/
+│                   └── manager.jsp
+└── pom.xml (or build.gradle)</pre>
+
+<h2>What We've Learned 🎓</h2>
+
+<ul>
+  <li>How to create a data model using Java classes</li>
+  <li>How to implement relationships between classes (students registered for courses)</li>
+  <li>Basic MVC architecture for web applications</li>
+  <li>How servlets manage data and forward to JSP pages</li>
+  <li>How to display data using JSP and JSTL</li>
+</ul>
+
+<h2>Challenge: Add More Features! 💪</h2>
+
+<p>Before we build the form interfaces in the next part, try these enhancements:</p>
+
+<ol>
+  <li>Add a method to CollegeManager that counts how many students are registered for each course</li>
+  <li>Modify the JSP to show these enrollment counts in the course table</li>
+  <li>Add a "year" field to the Student class and update the JSP to display it</li>
+</ol>
+
+<div class="tip">
+  <strong>Coming Up Next:</strong> We'll add forms to our JSP and enhance our servlet to handle POST requests, allowing us to add new students and courses and register students for courses!
+</div>
+
+</body>
+</html>
